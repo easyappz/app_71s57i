@@ -1,18 +1,96 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import './App.css';
 
 function App() {
+  const [display, setDisplay] = useState('0');
+  const [previousValue, setPreviousValue] = useState(null);
+  const [operation, setOperation] = useState(null);
+  const [waitingForSecondValue, setWaitingForSecondValue] = useState(false);
+
+  const handleNumberClick = (value) => {
+    if (display === '0' && value !== '.') {
+      setDisplay(value);
+    } else if (waitingForSecondValue) {
+      setDisplay(value);
+      setWaitingForSecondValue(false);
+    } else {
+      setDisplay(display + value);
+    }
+  };
+
+  const handleOperationClick = (op) => {
+    setPreviousValue(parseFloat(display));
+    setOperation(op);
+    setWaitingForSecondValue(true);
+  };
+
+  const handleClear = () => {
+    setDisplay('0');
+    setPreviousValue(null);
+    setOperation(null);
+    setWaitingForSecondValue(false);
+  };
+
+  const calculateResult = () => {
+    if (!previousValue || !operation) return;
+
+    const current = parseFloat(display);
+    let result = 0;
+
+    switch (operation) {
+      case '+':
+        result = previousValue + current;
+        break;
+      case '-':
+        result = previousValue - current;
+        break;
+      case '*':
+        result = previousValue * current;
+        break;
+      case '/':
+        if (current === 0) {
+          setDisplay('Error');
+          setPreviousValue(null);
+          setOperation(null);
+          setWaitingForSecondValue(false);
+          return;
+        }
+        result = previousValue / current;
+        break;
+      default:
+        return;
+    }
+
+    setDisplay(result.toString());
+    setPreviousValue(null);
+    setOperation(null);
+    setWaitingForSecondValue(false);
+  };
+
   return (
     <ErrorBoundary>
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Шаблон React успешно развернут, <br />
-            Ждите обновлений от AI :)
-          </p>
-        </header>
+      <div className="calculator">
+        <div className="calculator-display">{display}</div>
+        <div className="calculator-buttons">
+          <button className="calculator-button clear" onClick={handleClear}>C</button>
+          <button className="calculator-button operation" onClick={() => handleOperationClick('/')}>/</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('7')}>7</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('8')}>8</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('9')}>9</button>
+          <button className="calculator-button operation" onClick={() => handleOperationClick('*')}>*</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('4')}>4</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('5')}>5</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('6')}>6</button>
+          <button className="calculator-button operation" onClick={() => handleOperationClick('-')}>-</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('1')}>1</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('2')}>2</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('3')}>3</button>
+          <button className="calculator-button operation" onClick={() => handleOperationClick('+')}>+</button>
+          <button className="calculator-button zero" onClick={() => handleNumberClick('0')}>0</button>
+          <button className="calculator-button" onClick={() => handleNumberClick('.')}>.</button>
+          <button className="calculator-button equals" onClick={calculateResult}>=</button>
+        </div>
       </div>
     </ErrorBoundary>
   );
