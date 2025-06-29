@@ -96,7 +96,9 @@ function App() {
       return;
     }
 
-    setDisplay(result.toString());
+    // Format result to avoid floating point precision issues
+    const formattedResult = Math.round(result * 1000000) / 1000000;
+    setDisplay(formattedResult.toString());
     setPreviousValue(nextOp ? result : null);
     setOperation(nextOp || null);
     setWaitingForSecondValue(!!nextOp);
